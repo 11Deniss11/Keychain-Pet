@@ -2,6 +2,9 @@
 #include "eyes.h"
 #include "screen.h"
 
+#define min(a, b) ((a) < (b) ? (a) : (b))
+#define max(a, b) ((a) > (b) ? (a) : (b))
+
 // General update function at 30 fps
 void Eyes::updateEyes(bool leftPress, bool rightPress)
 {
@@ -12,7 +15,45 @@ void Eyes::updateEyes(bool leftPress, bool rightPress)
         posAchieved = moveEyes();
     }
 
-    if (game == None)
+    if (game != NONE)
+    {
+        if (leftPress && rightPress)
+        {
+            if (!buttonHold)
+            {
+                buttonHoldEndTime = millis() + 3000;
+            }
+
+            buttonHold = true;
+            if (millis() > buttonHoldEndTime - 2000)
+            {
+                Vector2 progressBarRectangle[4] = {Vector2(5, 5), Vector2(SCREEN_WIDTH / 3 - 5, 5), Vector2(SCREEN_WIDTH / 3 - 5, 10), Vector2(5, 10)};
+                float progressBarRadiuses[4] = {1, 1, 1, 1};
+                screen.drawRectangleInBuffer(progressBarRectangle, progressBarRadiuses);
+            }
+            if (millis() > buttonHoldEndTime - 1000)
+            {
+                Vector2 progressBarRectangle[4] = {Vector2((SCREEN_WIDTH / 3) + 5, 5), Vector2((SCREEN_WIDTH / 3) * 2 - 5, 5), Vector2((SCREEN_WIDTH / 3) * 2 - 5, 10), Vector2((SCREEN_WIDTH / 3) + 5, 10)};
+                float progressBarRadiuses[4] = {1, 1, 1, 1};
+                screen.drawRectangleInBuffer(progressBarRectangle, progressBarRadiuses);
+            }
+            if (millis() > buttonHoldEndTime)
+            {
+                Vector2 progressBarRectangle[4] = {Vector2((SCREEN_WIDTH / 3) * 2 + 5, 5), Vector2(SCREEN_WIDTH - 5, 5), Vector2(SCREEN_WIDTH - 5, 10), Vector2((SCREEN_WIDTH / 3) * 2 + 5, 10)};
+                float progressBarRadiuses[4] = {1, 1, 1, 1};
+                screen.drawRectangleInBuffer(progressBarRectangle, progressBarRadiuses);
+                buttonHold = false;
+                setGame(NONE);
+                setEmotion(NEUTRAL);
+            }
+        }
+        else
+        {
+            buttonHold = false;
+        }
+    }
+
+    if (game == NONE || millis() < pongPlayingAnimEndTime)
     {
         // If both posiions and radiuses are achieved, update sub emotion
         if (posAchieved)
@@ -24,11 +65,11 @@ void Eyes::updateEyes(bool leftPress, bool rightPress)
     {
         switch (game)
         {
-        case Pong:
+        case PONG:
             updatePong(leftPress, rightPress, posAchieved);
             break;
-        case Dino:
-            updateDino();
+        case DINO:
+            updateDino(leftPress, rightPress, posAchieved);
             break;
         }
     }
@@ -38,32 +79,30 @@ void Eyes::updateEyes(bool leftPress, bool rightPress)
                                   vector2fToVector2(eyePositions + 2), vector2fToVector2(eyePositions + 3),
                                   vector2fToVector2(eyePositions + 4), vector2fToVector2(eyePositions + 5),
                                   vector2fToVector2(eyePositions + 6), vector2fToVector2(eyePositions + 7)};
-    screen.clearBuffer();
     // Left eye
     screen.drawRectangleInBuffer(eyePositionsInt, eyeRadiuses);
     // Right eye
     screen.drawRectangleInBuffer(eyePositionsInt + 4, eyeRadiuses + 4);
 
-    if (game != None)
+    if (game != NONE && millis() > pongPlayingAnimEndTime)
     {
         // Convert game element positions to int for drawing
         Vector2 gameElementPositionInt[4] = {vector2fToVector2(gameElementPositionF), vector2fToVector2(gameElementPositionF + 1),
                                              vector2fToVector2(gameElementPositionF + 2), vector2fToVector2(gameElementPositionF + 3)};
         // Game Element
         screen.drawRectangleInBuffer(gameElementPositionInt, gameElementRadiuses);
-
-        // Serial.print("Game Element: ");
-        // Serial.print(gameElementPosition[0].x);
-        // Serial.print(", ");
-        // Serial.println(gameElementPosition[0].y);
-
-        // Serial.print("Wanted Game Element: ");
-        // Serial.print(wantedGameElementPosition[0].x);
-        // Serial.print(", ");
-        // Serial.println(wantedGameElementPosition[0].y);
     }
 
     screen.drawBufferToScreen();
+    screen.clearBuffer();
+}
+
+void Eyes::resetBall()
+{
+    pongBallPosition = Vector2f(36, 20);
+    pongBallVelocity = screen.normalize(
+        Vector2f((random(0, 1) ? random(-100, -20) : random(20, 100)) / 100.0, random(-85, 85) / 100.0));
+    pongBallVelocity = Vector2f(pongBallVelocity.x * 2, pongBallVelocity.y * 2);
 }
 
 void Eyes::updatePong(bool leftPress, bool rightPress, bool positionsAchieved)
@@ -78,40 +117,89 @@ void Eyes::updatePong(bool leftPress, bool rightPress, bool positionsAchieved)
         gameElementPositionF[2] = eyePositions[2];
         gameElementPositionF[3] = eyePositions[3];
 
+        // resetBall();
+
         speed = 0.1;
+        gameElementSpeed = 0.1;
 
         gameState = 1;
         break;
     case 1:
+        resetBall();
         if (positionsAchieved)
         {
             speed = 0.8;
+            gameElementSpeed = 1;
             gameState = 2;
         }
         break;
     case 2:
-        // Serial.println("State 2 Update");
-
-        if (leftPress)
+        if (leftPress && !rightPress)
         {
-            paddle1Position.y -= 0.5;
+            paddle1Position.y -= 2;
+            paddle1Position.y = constrain(paddle1Position.y, 7, 33);
         }
-        if (rightPress)
+        if (rightPress && !leftPress)
         {
-            paddle1Position.y += 0.5;
+            paddle1Position.y += 2;
+            paddle1Position.y = constrain(paddle1Position.y, 7, 33);
+        }
+
+        if (pongBallPosition.x > 36)
+        {
+            if (pongBallPosition.y > paddle2Position.y)
+            {
+                paddle2Position.y += 1.1;
+                paddle2Position.y = constrain(paddle2Position.y, 7, 33);
+            }
+            else
+            {
+                paddle2Position.y -= 1.1;
+                paddle2Position.y = constrain(paddle2Position.y, 7, 33);
+            }
         }
 
         pongBallPosition.x += pongBallVelocity.x;
         pongBallPosition.y += pongBallVelocity.y;
-        if (pongBallPosition.x < 5 || pongBallPosition.x > 66)
+        // score by player 2
+        if (pongBallPosition.x < 5)
+        {
+            gameScore2++;
+            Eyes::resetBall();
+            gameState = 0;
+            pongPlayingAnimEndTime = millis() + 5000;
+            setEmotion(HAPPY);
+        }
+        // hits paddle 1
+        else if (pongBallPosition.x < 11 && pongBallPosition.y > paddle1Position.y - 8 && pongBallPosition.y < paddle1Position.y + 8)
         {
             pongBallVelocity.x = -pongBallVelocity.x;
-            constrain(pongBallPosition.x, 5, 66);
+            pongBallPosition.x = 11;
+            pongBallVelocity = Vector2f(pongBallVelocity.x * 1.05, pongBallVelocity.y * 1.05);
         }
+        // score by player 1
+        if (pongBallPosition.x > 66)
+        {
+            gameScore1++;
+            Eyes::resetBall();
+
+            gameState = 0;
+            pongPlayingAnimEndTime = millis() + 5000;
+            random(0, 2) == 1 ? setEmotion(SAD) : setEmotion(ANGRY);
+        }
+        // hits paddle 2
+        else if (pongBallPosition.x > 60 && pongBallPosition.y > paddle2Position.y - 8 && pongBallPosition.y < paddle2Position.y + 8)
+        {
+            pongBallVelocity.x = -pongBallVelocity.x;
+            pongBallPosition.x = 60;
+            pongBallVelocity = Vector2f(pongBallVelocity.x * 1.05, pongBallVelocity.y * 1.05);
+        }
+        // hits top or bottom
         if (pongBallPosition.y < 5 || pongBallPosition.y > 35)
         {
             pongBallVelocity.y = -pongBallVelocity.y;
-            constrain(pongBallPosition.y, 5, 35);
+            // pongBallVelocity.x = constrain(pongBallPosition.y, 5, 35);
+            pongBallVelocity = Vector2f(pongBallVelocity.x * 1.05, pongBallVelocity.y * 1.05);
         }
         break;
     }
@@ -126,6 +214,11 @@ void Eyes::updatePong(bool leftPress, bool rightPress, bool positionsAchieved)
     paddlePositions[6] = Vector2(paddle2Position.x + 3, paddle2Position.y + 7);
     paddlePositions[7] = Vector2(paddle2Position.x - 3, paddle2Position.y + 7);
 
+    for (int i = 0; i < 8; i++)
+    {
+        paddleRadiuses[i] = 1;
+    }
+
     wantedPosition = paddlePositions;
     wantedRadiuses = paddleRadiuses;
 
@@ -136,14 +229,158 @@ void Eyes::updatePong(bool leftPress, bool rightPress, bool positionsAchieved)
 
     for (int i = 0; i < 4; i++)
     {
-        fakeGameElementRadiuses[i] = 2;
+        fakeGameElementRadiuses[i] = 1;
     }
 
     wantedGameElementPosition = fakeGameElementPosition;
     wantedGameElementRadiuses = fakeGameElementRadiuses;
 }
 
-void Eyes::updateDino() {}
+void Eyes::updateDino(bool leftPress, bool rightPress, bool positionsAchieved)
+{
+    switch (gameState)
+    {
+    case 0:
+        // Serial.println("State 1 Update");
+
+        gameElementPositionF[0] = eyePositions[0];
+        gameElementPositionF[1] = eyePositions[1];
+        gameElementPositionF[2] = eyePositions[2];
+        gameElementPositionF[3] = eyePositions[3];
+        cactusPositionX = 75;
+
+        dinoSpeed = 1.5;
+
+        speed = 0.1;
+        gameElementSpeed = 0.1;
+
+        gameState = 1;
+        break;
+    case 1:
+        resetBall();
+        if (positionsAchieved)
+        {
+            speed = 0.5;
+            gameElementSpeed = 1;
+            gameState = 2;
+        }
+        break;
+    case 2:
+        if (dinoVertPosition == dinoFloor)
+        {
+            if (leftPress && !rightPress)
+            {
+                dinoVertVelocity = -dinoJumpSpeed;
+            }
+        }
+        else if (dinoVertPosition < dinoFloor + 1)
+        {
+            dinoVertVelocity += dinoGravity;
+        }
+        else if (dinoVertPosition > dinoFloor)
+        {
+            dinoVertPosition = dinoFloor;
+            if (dinoVertVelocity > 0)
+            {
+                dinoVertVelocity = 0;
+            }
+        }
+
+        if (rightPress && !leftPress)
+        {
+            dinoCrouched = true;
+        }
+        else
+        {
+            dinoCrouched = false;
+        }
+
+        dinoVertPosition += dinoVertVelocity;
+
+        dinoSpeed += 0.001;
+
+        if (!dinoCrouched && cactusPositionX - cactusHalfWidth < dinoStandPosition[2].x && cactusPositionX + cactusHalfWidth > dinoStandPosition[1].x && cactusFloor - cactusHeight < dinoStandPosition[3].y + dinoVertPosition && cactusFloor > dinoStandPosition[1].y + dinoVertPosition)
+        {
+            gameState = 0;
+            pongPlayingAnimEndTime = millis() + 5000;
+            setEmotion(SAD);
+        }
+
+        if (cactusPositionX + cactusHalfWidth < 0)
+        {
+            if (dinoVertPosition == dinoFloor && esp_random() % 100 < 3)
+            {
+                cactusPositionX = 80;
+                if (dinoSpeed > 2 && esp_random() % 7 < 3)
+                {
+                    cactusIsBird = true;
+                    cactusHalfWidth = 3;
+                    cactusHeight = 4;
+                    cactusFloor = -(esp_random() % 2 * 6) + dinoFloor - 8;
+                }
+                else
+                {
+                    cactusIsBird = false;
+                    cactusHalfWidth = 2 + esp_random() % 3;
+                    cactusHeight = 6 + esp_random() % 3;
+                    cactusFloor = dinoFloor;
+                }
+            }
+        }
+        else
+        {
+            cactusPositionX -= dinoSpeed;
+        }
+
+        break;
+    }
+
+    if (!dinoCrouched)
+    {
+        dinoPositions[0] = Vector2(dinoStandPosition[0].x, dinoStandPosition[0].y + dinoVertPosition);
+        dinoPositions[1] = Vector2(dinoStandPosition[1].x, dinoStandPosition[1].y + dinoVertPosition);
+        dinoPositions[2] = Vector2(dinoStandPosition[2].x, dinoStandPosition[2].y + dinoVertPosition);
+        dinoPositions[3] = Vector2(dinoStandPosition[3].x, dinoStandPosition[3].y + dinoVertPosition);
+    }
+    else
+    {
+        dinoPositions[0] = Vector2(dinoCrouchPosition[0].x, dinoCrouchPosition[0].y + dinoVertPosition);
+        dinoPositions[1] = Vector2(dinoCrouchPosition[1].x, dinoCrouchPosition[1].y + dinoVertPosition);
+        dinoPositions[2] = Vector2(dinoCrouchPosition[2].x, dinoCrouchPosition[2].y + dinoVertPosition);
+        dinoPositions[3] = Vector2(dinoCrouchPosition[3].x, dinoCrouchPosition[3].y + dinoVertPosition);
+    }
+
+    for (int i = 0; i < 8; i++)
+    {
+        dinoRadiuses[i] = 1;
+    }
+
+    wantedPosition = dinoPositions;
+    wantedRadiuses = dinoRadiuses;
+
+    fakeGameElementPosition[0] = Vector2(max(cactusPositionX - cactusHalfWidth, 0), cactusFloor - cactusHeight);
+    fakeGameElementPosition[1] = Vector2(max(cactusPositionX + cactusHalfWidth, 0), cactusFloor - cactusHeight);
+    fakeGameElementPosition[2] = Vector2(max(cactusPositionX + cactusHalfWidth, 0), cactusFloor);
+    fakeGameElementPosition[3] = Vector2(max(cactusPositionX - cactusHalfWidth, 0), cactusFloor);
+
+    for (int i = 0; i < 4; i++)
+    {
+        fakeGameElementRadiuses[i] = 1;
+    }
+
+    wantedGameElementPosition = fakeGameElementPosition;
+    wantedGameElementRadiuses = fakeGameElementRadiuses;
+
+    for (int i = 0; i < 15; i++)
+    {
+        dinoStars[i] = Vector2f(dinoStars[i].x - dinoSpeed / 4, dinoStars[i].y);
+        if (dinoStars[i].x < 0)
+        {
+            dinoStars[i] = Vector2f(72, esp_random() % dinoFloor);
+        }
+        screen.setPixel(dinoStars[i].x, dinoStars[i].y, true);
+    }
+}
 
 void Eyes::setGame(Game game)
 {
@@ -153,7 +390,7 @@ void Eyes::setGame(Game game)
 
 void Eyes::updateSubEmotion()
 {
-    //
+
     if (!emotionAchieved)
     {
         emotionAchieved = true;
@@ -223,7 +460,7 @@ bool Eyes::moveEyes()
         }
     }
 
-    if (game == None)
+    if (game == NONE)
     {
         return positionsAchieved && radiusesAchieved;
     }
@@ -232,8 +469,8 @@ bool Eyes::moveEyes()
         // Update game element position
         for (int i = 0; i < 4; i++)
         {
-            gameElementPositionF[i] = Vector2f(lerp(gameElementPositionF[i].x, wantedGameElementPosition[i].x, speed),
-                                               lerp(gameElementPositionF[i].y, wantedGameElementPosition[i].y, speed));
+            gameElementPositionF[i] = Vector2f(lerp(gameElementPositionF[i].x, wantedGameElementPosition[i].x, gameElementSpeed),
+                                               lerp(gameElementPositionF[i].y, wantedGameElementPosition[i].y, gameElementSpeed));
             int diffX = abs(wantedGameElementPosition[i].x - gameElementPositionF[i].x);
             int diffY = abs(wantedGameElementPosition[i].y - gameElementPositionF[i].y);
             if (diffX <= positionTolerance)
@@ -248,7 +485,7 @@ bool Eyes::moveEyes()
         // Update game element radiuses
         for (int i = 0; i < 4; i++)
         {
-            gameElementRadiuses[i] = lerp(gameElementRadiuses[i], wantedGameElementRadiuses[i], speed);
+            gameElementRadiuses[i] = lerp(gameElementRadiuses[i], wantedGameElementRadiuses[i], gameElementSpeed);
 
             int diff = abs(wantedGameElementRadiuses[i] - gameElementRadiuses[i]);
             if (diff <= positionTolerance)
@@ -439,10 +676,15 @@ void Eyes::cycleSubEmotion()
             speed = susSpeed1;
             break;
         case 2:
-            subEmotion = 0;
             wantedPosition = susPosition2;
             wantedRadiuses = susRadiuses2;
             speed = susSpeed2;
+            break;
+        case 3:
+            subEmotion = 0;
+            wantedPosition = susPosition0;
+            wantedRadiuses = susRadiuses0;
+            speed = susSpeed0;
             break;
         default:
             break;
@@ -500,6 +742,11 @@ void Eyes::cycleSubEmotion()
 // Update cooldown time for current sub emotion
 void Eyes::updateCooldown()
 {
+    if (subEmotion == 0)
+    {
+        cooldownTill = millis();
+        return;
+    }
     switch (emotion)
     {
     case NEUTRAL:

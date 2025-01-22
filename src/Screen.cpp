@@ -94,6 +94,23 @@ void Screen::fillBuffer()
     memset(screenBuffer, 0xff, sizeof screenBuffer);
 }
 
+// Set colour of pixel
+void Screen::setPixel(uint8_t x, uint8_t y, boolean colour)
+{
+    if (x >= SCREEN_WIDTH || y >= SCREEN_HEIGHT)
+    {
+        return;
+    }
+    if (colour)
+    {
+        screenBuffer[y / 8][x] |= (1 << (y % 8));
+    }
+    else
+    {
+        screenBuffer[y / 8][x] &= ~(1 << (y % 8));
+    }
+}
+
 // Stop the screen
 void Screen::stop()
 {

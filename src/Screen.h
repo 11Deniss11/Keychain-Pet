@@ -12,9 +12,9 @@
 
 struct Vector2
 {
-    Vector2(uint8_t px, uint8_t py) : x(px), y(py) {}
-    uint8_t x = 0;
-    uint8_t y = 0;
+    Vector2(int8_t px, int8_t py) : x(px), y(py) {}
+    int8_t x = 0;
+    int8_t y = 0;
 };
 
 struct Vector2f
@@ -34,6 +34,7 @@ public:
     void clearBuffer();
     void fillBuffer();
     void moveCursor(uint8_t page, uint8_t col);
+    void setPixel(uint8_t x, uint8_t y, boolean colour);
     void stop();
     boolean edgeFunctionAboveZero(Vector2 a, Vector2 b, Vector2 c);
     boolean edgeFunctionAboveZerof(Vector2f a, Vector2f b, Vector2 c);
