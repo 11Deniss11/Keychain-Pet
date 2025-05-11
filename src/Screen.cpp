@@ -1,6 +1,23 @@
+/*
+ * This file is part of Keychain-Pet.
+ *
+ * Keychain-Pet is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Keychain-Pet is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 #include <Arduino.h>
 #include "screen.h"
-#include <Wire.h>
+#include "Wire.h"
 
 #define min(a, b) ((a) < (b) ? (a) : (b))
 #define max(a, b) ((a) > (b) ? (a) : (b))
@@ -8,8 +25,7 @@
 // Constructor
 Screen::Screen(uint8_t address) : i2cAddress(address)
 {
-    Wire.begin(21, 22, 400000);
-    delay(1000);
+    Wire.begin(8, 9, 400000);
 }
 
 // Send command to SSD1306
@@ -51,7 +67,7 @@ void Screen::init()
     sendCommand(0xDA); // Set COM pins hardware configuration
     sendCommand(0x12); // Alternative COM pin configuration, disable COM left/right remap
     sendCommand(0x81); // Set contrast control
-    sendCommand(0xCF); // Contrast value
+    sendCommand(0xFF); // Contrast value
     sendCommand(0xD9); // Set pre-charge period
     sendCommand(0xF1); // Phase 1 period: 15 DCLKs, Phase 2 period: 1 DCLK
     sendCommand(0xDB); // Set VCOMH deselect level
