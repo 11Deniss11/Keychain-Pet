@@ -51,14 +51,14 @@ public:
     void clearBuffer();
     void fillBuffer();
     void moveCursor(uint8_t page, uint8_t col);
-    void setPixel(uint8_t x, uint8_t y, boolean colour);
+    void setPixel(uint8_t x, uint8_t y, bool colour);
     void stop();
-    boolean edgeFunctionAboveZero(Vector2 a, Vector2 b, Vector2 c);
-    boolean edgeFunctionAboveZerof(Vector2f a, Vector2f b, Vector2 c);
-    boolean pointIsWithinCircle(Vector2 center, int radius, Vector2 point);
-    boolean pointIsWithinTriangle(Vector2 point, Vector2 r1, Vector2 r2, Vector2 r3);
-    boolean pointIsWithinRectangle(Vector2 point, Vector2 *vertices, int *radiuses, Vector2 *filletPoints1,
-                                   Vector2 *filletPoints2, Vector2 *filletPoints3, Vector2 *filletPoints4);
+    bool edgeFunctionAboveZero(Vector2 a, Vector2 b, Vector2 c);
+    bool edgeFunctionAboveZerof(Vector2f a, Vector2f b, Vector2 c);
+    bool pointIsWithinCircle(Vector2 center, int radius, Vector2 point);
+    bool pointIsWithinTriangle(Vector2 point, Vector2 r1, Vector2 r2, Vector2 r3);
+    bool pointIsWithinRectangle(Vector2 point, Vector2 *vertices, int *radiuses, Vector2 *filletPoints1,
+                                Vector2 *filletPoints2, Vector2 *filletPoints3, Vector2 *filletPoints4);
     void findFilletCirclePoints(Vector2 vertex1, Vector2 vertex2, Vector2 vertex3, int radius, Vector2 *arr);
     void drawRectangleInBuffer(Vector2 *vertices, float *radiuses);
     Vector2 minRect(Vector2 r1, Vector2 r2, Vector2 r3, Vector2 r4);

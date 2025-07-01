@@ -20,6 +20,7 @@
 
 #include <stdint.h>
 #include "screen.h"
+#include <esp_system.h>
 
 class Eyes
 {
@@ -32,7 +33,8 @@ public:
         HAPPY,
         SAD,
         SUS,
-        ANGRY
+        ANGRY,
+        WAKE
     };
     enum Game
     {
@@ -40,14 +42,14 @@ public:
         PONG,
         DINO
     };
-    Emotion emotion = NEUTRAL;
+    Emotion emotion = WAKE;
     Game game = NONE;
     float speed = 0.15;
     float interEmotionSpeed = 0.2;
     void setEmotion(Emotion pEmotion);
     void setSpeed(float speed);
     void setGame(Game pGame);
-    boolean emotionAchieved = true;
+    bool emotionAchieved = true;
     // boolean subEmotionAchieved = true;
     int subEmotion = 0;
 
@@ -310,13 +312,57 @@ private:
     int angryTime7 = 200;
     float angrySpeed7 = 0.2;
 
+    // Wake 0
+    Vector2 wakePosition0[8] = {Vector2(9, 16), Vector2(34, 14), Vector2(34, 15), Vector2(9, 17),
+                                Vector2(40, 15), Vector2(65, 17), Vector2(65, 18), Vector2(40, 16)};
+    float wakeRadiuses0[8] = {0, 0, 0, 0,
+                              0, 0, 0, 0};
+    int wakeTime0 = 700;
+    float wakeSpeed0 = 0.2;
+
+    // Wake 1
+    Vector2 wakePosition1[8] = {Vector2(9, 15), Vector2(33, 13), Vector2(33, 19), Vector2(9, 20),
+                                Vector2(40, 14), Vector2(64, 16), Vector2(64, 21), Vector2(40, 20)};
+    float wakeRadiuses1[8] = {0, 0, 4, 4,
+                              0, 0, 4, 4};
+    int wakeTime1 = 1000;
+    float wakeSpeed1 = 0.12;
+
+    // Wake 2 is mostly same as Wake 0
+    int wakeTime2 = 300;
+    float wakeSpeed2 = 0.12;
+
+    // Wake 3
+    Vector2 wakePosition3[8] = {Vector2(10, 11), Vector2(32, 11), Vector2(32, 24), Vector2(10, 24),
+                                Vector2(41, 11), Vector2(63, 12), Vector2(63, 25), Vector2(41, 24)};
+    float wakeRadiuses3[8] = {4, 4, 8, 8,
+                              4, 4, 8, 8};
+    int wakeTime3 = 400;
+    float wakeSpeed3 = 0.2;
+
+    // Wake 4
+    Vector2 wakePosition4[8] = {Vector2(10, 17), Vector2(33, 17), Vector2(33, 18), Vector2(10, 18),
+                                Vector2(40, 17), Vector2(63, 17), Vector2(63, 18), Vector2(40, 18)};
+    float wakeRadiuses4[8] = {0, 0, 0, 0,
+                              0, 0, 0, 0};
+    int wakeTime4 = 50;
+    float wakeSpeed4 = 0.4;
+
+    // Wake 5
+    Vector2 wakePosition5[8] = {Vector2(11, 6), Vector2(32, 6), Vector2(32, 31), Vector2(11, 31),
+                                Vector2(41, 6), Vector2(62, 6), Vector2(62, 31), Vector2(41, 31)};
+    float wakeRadiuses5[8] = {5, 5, 5, 5,
+                              5, 5, 5, 5};
+    int wakeTime5 = 1300;
+    float wakeSpeed5 = 0.4;
+
     Vector2 *wantedPosition = neutralPosition0;
     float *wantedRadiuses = neutralRadiuses0;
 
-    Vector2f eyePositions[8] = {Vector2f(11, 6), Vector2f(32, 6), Vector2f(32, 31), Vector2f(11, 31),
-                                Vector2f(41, 6), Vector2f(62, 6), Vector2f(62, 31), Vector2f(41, 31)};
-    float eyeRadiuses[8] = {10, 10, 10, 10,
-                            10, 10, 10, 10};
+    Vector2f eyePositions[8] = {Vector2f(9, 16), Vector2f(34, 14), Vector2f(34, 15), Vector2f(9, 17),
+                                Vector2f(40, 15), Vector2f(65, 17), Vector2f(65, 18), Vector2f(40, 16)};
+    float eyeRadiuses[8] = {0, 0, 4, 4,
+                            0, 0, 4, 4};
 };
 
 #endif // EYES_H

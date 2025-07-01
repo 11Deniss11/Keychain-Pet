@@ -753,6 +753,45 @@ void Eyes::cycleSubEmotion()
             break;
         }
         break;
+    case WAKE:
+        switch (subEmotion)
+        {
+        case 0:
+            wantedPosition = wakePosition0;
+            wantedRadiuses = wakeRadiuses0;
+            speed = wakeSpeed0;
+            break;
+        case 1:
+            wantedPosition = wakePosition1;
+            wantedRadiuses = wakeRadiuses1;
+            speed = wakeSpeed1;
+            break;
+        case 2:
+            wantedPosition = wakePosition0;
+            wantedRadiuses = wakeRadiuses0;
+            speed = wakeSpeed2;
+            break;
+        case 3:
+            wantedPosition = wakePosition3;
+            wantedRadiuses = wakeRadiuses3;
+            speed = wakeSpeed3;
+            break;
+        case 4:
+            wantedPosition = wakePosition4;
+            wantedRadiuses = wakeRadiuses4;
+            speed = wakeSpeed4;
+            break;
+        case 5:
+            wantedPosition = wakePosition5;
+            wantedRadiuses = wakeRadiuses5;
+            speed = wakeSpeed5;
+            break;
+
+        case 6:
+            subEmotion = 0;
+            setEmotion(NEUTRAL);
+            break;
+        }
     }
 }
 
@@ -893,6 +932,33 @@ void Eyes::updateCooldown()
         default:
             break;
         }
+    case WAKE:
+        switch (subEmotion)
+        {
+        case 0:
+            cooldownTill = millis() + wakeTime0;
+            break;
+        case 1:
+            cooldownTill = millis() + wakeTime1;
+            break;
+        case 2:
+            cooldownTill = millis() + wakeTime2;
+            break;
+        case 3:
+            cooldownTill = millis() + wakeTime3;
+            break;
+        case 4:
+            cooldownTill = millis() + wakeTime4;
+            break;
+        case 5:
+            cooldownTill = millis() + wakeTime5;
+            break;
+        case 6:
+            cooldownTill = millis() + wakeTime5;
+            break;
+        default:
+            break;
+        }
     }
 }
 
@@ -903,7 +969,6 @@ void Eyes::setEmotion(Emotion pEmotion)
 
     switch (emotion)
     {
-
     case NEUTRAL:
         wantedPosition = neutralPosition0;
         wantedRadiuses = neutralRadiuses0;
@@ -923,6 +988,10 @@ void Eyes::setEmotion(Emotion pEmotion)
     case ANGRY:
         wantedPosition = angryPosition0;
         wantedRadiuses = angryRadiuses0;
+        break;
+    case WAKE:
+        wantedPosition = wakePosition0;
+        wantedRadiuses = wakeRadiuses0;
         break;
     default:
         break;

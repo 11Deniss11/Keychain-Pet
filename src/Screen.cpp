@@ -111,7 +111,7 @@ void Screen::fillBuffer()
 }
 
 // Set colour of pixel
-void Screen::setPixel(uint8_t x, uint8_t y, boolean colour)
+void Screen::setPixel(uint8_t x, uint8_t y, bool colour)
 {
     if (x >= SCREEN_WIDTH || y >= SCREEN_HEIGHT)
     {
@@ -140,7 +140,7 @@ void Screen::stop()
 }
 
 // Check if a point is below a linear line
-boolean Screen::edgeFunctionAboveZero(Vector2 a, Vector2 b, Vector2 c)
+bool Screen::edgeFunctionAboveZero(Vector2 a, Vector2 b, Vector2 c)
 {
     if (a.x == b.x && a.y == b.y)
     {
@@ -150,13 +150,13 @@ boolean Screen::edgeFunctionAboveZero(Vector2 a, Vector2 b, Vector2 c)
 } // point is within shape if it's within all edges
 
 // Check if a point is below a linear line with float values
-boolean Screen::edgeFunctionAboveZerof(Vector2f a, Vector2f b, Vector2 c)
+bool Screen::edgeFunctionAboveZerof(Vector2f a, Vector2f b, Vector2 c)
 {
     return ((b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x) > 0);
 } // point is within shape if it's within all edges
 
 // Check if a point is within a circle
-boolean Screen::pointIsWithinCircle(Vector2 center, int radius, Vector2 point)
+bool Screen::pointIsWithinCircle(Vector2 center, int radius, Vector2 point)
 {
     if (radius == 0)
     {
@@ -167,28 +167,28 @@ boolean Screen::pointIsWithinCircle(Vector2 center, int radius, Vector2 point)
 }
 
 // Check if a point is within a triangle
-boolean Screen::pointIsWithinTriangle(Vector2 point, Vector2 r1, Vector2 r2, Vector2 r3)
+bool Screen::pointIsWithinTriangle(Vector2 point, Vector2 r1, Vector2 r2, Vector2 r3)
 {
     return edgeFunctionAboveZero(r1, r2, point) && edgeFunctionAboveZero(r2, r3, point) && edgeFunctionAboveZero(r3, r1, point);
 }
 
 // Check if a point is within a rectangle
-boolean Screen::pointIsWithinRectangle(Vector2 point, Vector2 *vertices, int *radiuses, Vector2 *filletPoints1,
-                                       Vector2 *filletPoints2, Vector2 *filletPoints3, Vector2 *filletPoints4)
+bool Screen::pointIsWithinRectangle(Vector2 point, Vector2 *vertices, int *radiuses, Vector2 *filletPoints1,
+                                    Vector2 *filletPoints2, Vector2 *filletPoints3, Vector2 *filletPoints4)
 {
-    boolean pointWithinRectangle = edgeFunctionAboveZero(vertices[0], vertices[1], point) && edgeFunctionAboveZero(vertices[1], vertices[2], point) &&
-                                   edgeFunctionAboveZero(vertices[2], vertices[3], point) && edgeFunctionAboveZero(vertices[3], vertices[0], point);
+    bool pointWithinRectangle = edgeFunctionAboveZero(vertices[0], vertices[1], point) && edgeFunctionAboveZero(vertices[1], vertices[2], point) &&
+                                edgeFunctionAboveZero(vertices[2], vertices[3], point) && edgeFunctionAboveZero(vertices[3], vertices[0], point);
 
     if (pointWithinRectangle)
     {
-        boolean pointOutsideRoundedEdges = (edgeFunctionAboveZero(filletPoints1[2], filletPoints1[0], point) && edgeFunctionAboveZero(filletPoints1[0], filletPoints1[1], point) &&
-                                            !pointIsWithinCircle(filletPoints1[0], radiuses[0], point)) ||
-                                           (edgeFunctionAboveZero(filletPoints2[2], filletPoints2[0], point) && edgeFunctionAboveZero(filletPoints2[0], filletPoints2[1], point) &&
-                                            !pointIsWithinCircle(filletPoints2[0], radiuses[1], point)) ||
-                                           (edgeFunctionAboveZero(filletPoints3[2], filletPoints3[0], point) && edgeFunctionAboveZero(filletPoints3[0], filletPoints3[1], point) &&
-                                            !pointIsWithinCircle(filletPoints3[0], radiuses[2], point)) ||
-                                           (edgeFunctionAboveZero(filletPoints4[2], filletPoints4[0], point) && edgeFunctionAboveZero(filletPoints4[0], filletPoints4[1], point) &&
-                                            !pointIsWithinCircle(filletPoints4[0], radiuses[3], point));
+        bool pointOutsideRoundedEdges = (edgeFunctionAboveZero(filletPoints1[2], filletPoints1[0], point) && edgeFunctionAboveZero(filletPoints1[0], filletPoints1[1], point) &&
+                                         !pointIsWithinCircle(filletPoints1[0], radiuses[0], point)) ||
+                                        (edgeFunctionAboveZero(filletPoints2[2], filletPoints2[0], point) && edgeFunctionAboveZero(filletPoints2[0], filletPoints2[1], point) &&
+                                         !pointIsWithinCircle(filletPoints2[0], radiuses[1], point)) ||
+                                        (edgeFunctionAboveZero(filletPoints3[2], filletPoints3[0], point) && edgeFunctionAboveZero(filletPoints3[0], filletPoints3[1], point) &&
+                                         !pointIsWithinCircle(filletPoints3[0], radiuses[2], point)) ||
+                                        (edgeFunctionAboveZero(filletPoints4[2], filletPoints4[0], point) && edgeFunctionAboveZero(filletPoints4[0], filletPoints4[1], point) &&
+                                         !pointIsWithinCircle(filletPoints4[0], radiuses[3], point));
         return !pointOutsideRoundedEdges;
     }
     return false;
