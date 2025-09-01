@@ -16,11 +16,12 @@
  */
 
 #include <Arduino.h>
+
 #include "screen.h"
 #include "eyes.h"
 #include "EmotionController.h"
 
-#include <Wire.h>
+// #include <Wire.h>
 
 Screen screen(SSD1306_I2C_ADDRESS);
 Eyes eyes(screen);
@@ -38,7 +39,7 @@ void setup()
     pinMode(powerPin, OUTPUT);
     digitalWrite(powerPin, HIGH);
     pinMode(photoPin, INPUT);
-    Serial.begin(115200);
+    // Serial.begin(115200);
     delay(1000);
     screen.init();
     screen.clearBuffer();
@@ -57,9 +58,11 @@ void eyePeriodic()
     time = time % 30;
     if (time < lastTime)
     {
-        eyes.updateEyes(digitalRead(leftButtonPin), digitalRead(rightButtonPin));
-        // Serial.println("Update");
-        Serial.println(analogRead(photoPin));
+        bool leftButtonPressed = digitalRead(leftButtonPin);
+        bool rightButtonPressed = digitalRead(rightButtonPin);
+
+        emotionController.updateEmotions(leftButtonPressed, rightButtonPressed);
+        eyes.updateEyes(leftButtonPressed, rightButtonPressed);
     }
     lastTime = time;
 }

@@ -18,9 +18,16 @@
 #ifndef EMOTIONCONTROLLER_H
 #define EMOTIONCONTROLLER_H
 
+#include <Arduino.h>
 #include "eyes.h"
 
 #define wakeTime 15000 // 15 secs
+
+struct click
+{
+    unsigned long time;
+    uint8_t type; // left = 0, right = 1, both = 2
+};
 
 class EmotionController
 {
@@ -29,9 +36,17 @@ public:
     void updateEmotions(bool leftPress, bool rightPress);
 
 private:
+    Eyes::Emotion getRandomNonNeutralEmotion();
+    void updateClicks(bool leftPress, bool rightPress);
+    void checkEmotionTimeout();
     Eyes &eyes;
     bool asleep = false;
     unsigned long wakeUpTime;
+    click lastClick = {0, 0};
+    click secondLastClick = {0, 0};
+    unsigned long currentEmotionStartTime = 0;
+    unsigned long neutralEmotionTime = 10000;
+    unsigned long angryEmotionTime = 2000;
 };
 
 #endif // EMOTIONCONTROLLER_H

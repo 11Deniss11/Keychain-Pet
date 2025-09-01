@@ -15,4 +15,75 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "EmotionController.h"
 #include "eyes.h"
+
+void EmotionController::updateEmotions(bool leftPress, bool rightPress)
+{
+    // during wake up
+    if (eyes.emotion == Eyes::WAKE)
+    {
+        // forceful wake up
+        if ((leftPress || rightPress) && lastClick.time != 0)
+        {
+            eyes.setEmotion(Eyes::ANGRY);
+        }
+    }
+    updateClicks(leftPress, rightPress);
+}
+
+void EmotionController::checkEmotionTimeout()
+{
+    switch (eyes.emotion)
+    {
+    case Eyes::NEUTRAL:
+        if (millis() - currentEmotionStartTime > neutralEmotionTime)
+        {
+            eyes.setEmotion(getRandomNonNeutralEmotion());
+        }
+    case Eyes::ANGRY:
+        if (millis() - currentEmotionStartTime > angryEmotionTime)
+        {
+            eyes.setEmotion(Eyes::NEUTRAL);
+        }
+    }
+}
+
+Eyes::Emotion EmotionController::getRandomNonNeutralEmotion()
+{
+    int r = esp_random() % 4;
+    switch (r)
+    {
+    case 0:
+        return Eyes::HAPPY;
+    case 1:
+        return Eyes::SAD;
+    case 2:
+        return Eyes::SUS;
+    case 3:
+        return Eyes::ANGRY;
+    default:
+        return Eyes::NEUTRAL; // Fallback, should never happen
+    }
+}
+
+void EmotionController::updateClicks(bool leftPress, bool rightPress)
+{
+    if (leftPress || rightPress)
+    {
+        secondLastClick = lastClick;
+        lastClick.time = millis();
+        if (leftPress && rightPress)
+        {
+            lastClick.type = 2;
+        }
+        else if (leftPress)
+        {
+            lastClick.type = 0;
+        }
+        else
+        {
+            lastClick.type = 1;
+        }
+    }
+}
