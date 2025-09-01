@@ -46,7 +46,10 @@ private:
     click secondLastClick = {0, 0};
     unsigned long currentEmotionStartTime = 0;
     unsigned long neutralEmotionTime = 10000;
-    unsigned long angryEmotionTime = 2000;
+    unsigned long happyEmotionTime = 1500;
+    unsigned long sadEmotionTime = 1500;
+    unsigned long susEmotionTime = 1500;
+    unsigned long angryEmotionTime = 1500;
 };
 
 #endif // EMOTIONCONTROLLER_H

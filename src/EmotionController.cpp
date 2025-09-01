@@ -29,6 +29,7 @@ void EmotionController::updateEmotions(bool leftPress, bool rightPress)
             eyes.setEmotion(Eyes::ANGRY);
         }
     }
+    checkEmotionTimeout();
     updateClicks(leftPress, rightPress);
 }
 
@@ -41,11 +42,33 @@ void EmotionController::checkEmotionTimeout()
         {
             eyes.setEmotion(getRandomNonNeutralEmotion());
         }
+        break;
+    case Eyes::HAPPY:
+        if (millis() - currentEmotionStartTime > happyEmotionTime)
+        {
+            eyes.setEmotion(Eyes::NEUTRAL);
+        }
+        break;
+    case Eyes::SAD:
+        if (millis() - currentEmotionStartTime > sadEmotionTime)
+        {
+            eyes.setEmotion(Eyes::NEUTRAL);
+        }
+        break;
+    case Eyes::SUS:
+        if (millis() - currentEmotionStartTime > susEmotionTime)
+        {
+            eyes.setEmotion(Eyes::NEUTRAL);
+        }
+        break;
     case Eyes::ANGRY:
         if (millis() - currentEmotionStartTime > angryEmotionTime)
         {
             eyes.setEmotion(Eyes::NEUTRAL);
         }
+        break;
+    default:
+        break;
     }
 }
 
