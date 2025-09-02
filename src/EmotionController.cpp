@@ -18,19 +18,96 @@
 #include "EmotionController.h"
 #include "eyes.h"
 
-void EmotionController::updateEmotions(bool leftPress, bool rightPress)
+void EmotionController::updateEmotions(bool leftPress, bool rightPress, int lightLevel)
 {
-    // during wake up
-    if (eyes.emotion == Eyes::WAKE)
+    pollInputs(leftPress, rightPress, lightLevel);
+
+    if (eyes.game != Eyes::NONE)
     {
-        // forceful wake up
-        if ((leftPress || rightPress) && lastClick.time != 0)
-        {
-            eyes.setEmotion(Eyes::ANGRY);
-        }
+        return;
     }
+
+    switch (eyes.emotion)
+    {
+    case Eyes::WAKE:
+        if ((leftJustPressed || rightJustPressed) && lastPress.time != 0)
+        {
+            // forceful wake up
+            changeEmotion(Eyes::ANGRY);
+        }
+        break;
+
+    case Eyes::NEUTRAL:
+        if (lightSensorCovered)
+        {
+            if (esp_random() % 2 == 1)
+            {
+                changeEmotion(Eyes::SUS);
+            }
+            else
+            {
+                changeEmotion(Eyes::HAPPY);
+            }
+        }
+        break;
+
+    case Eyes::HAPPY:
+        if (leftJustPressed || rightJustPressed)
+        {
+            changeEmotion(Eyes::SUS);
+        }
+        break;
+
+    case Eyes::SAD:
+        if (lightSensorCovered)
+        {
+            changeEmotion(Eyes::NEUTRAL);
+        }
+        break;
+
+    case Eyes::SUS:
+        if (lightSensorCovered)
+        {
+            changeEmotion(Eyes::HAPPY);
+        }
+        break;
+
+    case Eyes::ANGRY:
+        if (lightSensorCovered)
+        {
+            changeEmotion(Eyes::SAD);
+        }
+        break;
+
+    default:
+        break;
+    }
+
     checkEmotionTimeout();
-    updateClicks(leftPress, rightPress);
+    updatePressHistory();
+}
+
+void EmotionController::pollInputs(bool leftPress, bool rightPress, int lightLevel)
+{
+    averageLightLevel = (averageLightLevel * 8 + lightLevel * 2) / 10;
+    lightSensorCovered = averageLightLevel < lightLevelThreshold;
+    sensorJustCovered = lightSensorCovered && !lastLightSensorCovered;
+    lastLightSensorCovered = lightSensorCovered;
+
+    leftJustPressed = leftPress && !lastLeftPressed;
+    lastLeftPressed = leftPress;
+
+    rightJustPressed = rightPress && !lastRightPressed;
+    lastRightPressed = rightPress;
+}
+
+void EmotionController::changeEmotion(Eyes::Emotion newEmotion)
+{
+    if (newEmotion != eyes.emotion)
+    {
+        eyes.setEmotion(newEmotion);
+        currentEmotionStartTime = millis();
+    }
 }
 
 void EmotionController::checkEmotionTimeout()
@@ -38,33 +115,33 @@ void EmotionController::checkEmotionTimeout()
     switch (eyes.emotion)
     {
     case Eyes::NEUTRAL:
-        if (millis() - currentEmotionStartTime > neutralEmotionTime)
+        if (millis() - currentEmotionStartTime > neutralEmotionTimeout)
         {
-            eyes.setEmotion(getRandomNonNeutralEmotion());
+            changeEmotion(getRandomNonNeutralEmotion());
         }
         break;
     case Eyes::HAPPY:
-        if (millis() - currentEmotionStartTime > happyEmotionTime)
+        if (millis() - currentEmotionStartTime > happyEmotionTimeout)
         {
-            eyes.setEmotion(Eyes::NEUTRAL);
+            changeEmotion(Eyes::NEUTRAL);
         }
         break;
     case Eyes::SAD:
-        if (millis() - currentEmotionStartTime > sadEmotionTime)
+        if (millis() - currentEmotionStartTime > sadEmotionTimeout)
         {
-            eyes.setEmotion(Eyes::NEUTRAL);
+            changeEmotion(Eyes::NEUTRAL);
         }
         break;
     case Eyes::SUS:
-        if (millis() - currentEmotionStartTime > susEmotionTime)
+        if (millis() - currentEmotionStartTime > susEmotionTimeout)
         {
-            eyes.setEmotion(Eyes::NEUTRAL);
+            changeEmotion(Eyes::HAPPY);
         }
         break;
     case Eyes::ANGRY:
-        if (millis() - currentEmotionStartTime > angryEmotionTime)
+        if (millis() - currentEmotionStartTime > angryEmotionTimeout)
         {
-            eyes.setEmotion(Eyes::NEUTRAL);
+            changeEmotion(Eyes::SAD);
         }
         break;
     default:
@@ -90,23 +167,24 @@ Eyes::Emotion EmotionController::getRandomNonNeutralEmotion()
     }
 }
 
-void EmotionController::updateClicks(bool leftPress, bool rightPress)
+void EmotionController::updatePressHistory()
 {
-    if (leftPress || rightPress)
+    if (leftJustPressed || rightJustPressed)
     {
-        secondLastClick = lastClick;
-        lastClick.time = millis();
-        if (leftPress && rightPress)
+        secondLastPress = lastPress;
+        lastPress.time = millis();
+
+        if (leftJustPressed && rightJustPressed)
         {
-            lastClick.type = 2;
+            lastPress.type = 2;
         }
-        else if (leftPress)
+        else if (leftJustPressed)
         {
-            lastClick.type = 0;
+            lastPress.type = 0;
         }
         else
         {
-            lastClick.type = 1;
+            lastPress.type = 1;
         }
     }
 }

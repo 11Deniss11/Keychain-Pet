@@ -61,14 +61,11 @@ void eyePeriodic()
         bool leftButtonPressed = digitalRead(leftButtonPin);
         bool rightButtonPressed = digitalRead(rightButtonPin);
 
-        emotionController.updateEmotions(leftButtonPressed, rightButtonPressed);
         eyes.updateEyes(leftButtonPressed, rightButtonPressed);
+        emotionController.updateEmotions(leftButtonPressed, rightButtonPressed, 300); // analogRead(photoPin)
     }
     lastTime = time;
 }
-
-long int stepSize = 5000;
-int lastStep = 0;
 
 void loop()
 {

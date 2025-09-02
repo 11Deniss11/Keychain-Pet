@@ -25,7 +25,7 @@
 // General update function at 30 fps
 void Eyes::updateEyes(bool leftPress, bool rightPress)
 {
-    bool posAchieved;
+    bool posAchieved = false;
     // Don't update during cooldown
     if (millis() > cooldownTill)
     {
@@ -932,6 +932,7 @@ void Eyes::updateCooldown()
         default:
             break;
         }
+        break;
     case WAKE:
         switch (subEmotion)
         {

@@ -21,9 +21,16 @@
 #include <Arduino.h>
 #include "eyes.h"
 
-#define wakeTime 15000 // 15 secs
+#define lightLevelThreshold 200 // adjust later
 
-struct click
+#define neutralEmotionTimeout 15000
+#define happyEmotionTimeout 4000
+#define sadEmotionTimeout 8000
+#define susEmotionTimeout 4000
+#define angryEmotionTimeout 6000
+#define shortEmotionTimeout 4000
+
+struct Press
 {
     unsigned long time;
     uint8_t type; // left = 0, right = 1, both = 2
@@ -33,23 +40,30 @@ class EmotionController
 {
 public:
     EmotionController(Eyes &peyes) : eyes(peyes) {};
-    void updateEmotions(bool leftPress, bool rightPress);
+    void updateEmotions(bool leftPress, bool rightPress, int lightLevel);
+    void changeEmotion(Eyes::Emotion newEmotion);
 
 private:
+    bool lightSensorCovered = false;
+    bool lastLightSensorCovered = false;
+    bool sensorJustCovered = false;
+    int averageLightLevel = 0;
+
+    bool lastLeftPressed = false;
+    bool leftJustPressed = false;
+
+    bool lastRightPressed = false;
+    bool rightJustPressed = false;
+
     Eyes::Emotion getRandomNonNeutralEmotion();
-    void updateClicks(bool leftPress, bool rightPress);
+    void updatePressHistory();
     void checkEmotionTimeout();
+    // void changeEmotion(Eyes::Emotion newEmotion);
+    void pollInputs(bool leftPress, bool rightPress, int lightLevel);
     Eyes &eyes;
-    bool asleep = false;
-    unsigned long wakeUpTime;
-    click lastClick = {0, 0};
-    click secondLastClick = {0, 0};
+    Press lastPress = {0, 0};
+    Press secondLastPress = {0, 0};
     unsigned long currentEmotionStartTime = 0;
-    unsigned long neutralEmotionTime = 10000;
-    unsigned long happyEmotionTime = 1500;
-    unsigned long sadEmotionTime = 1500;
-    unsigned long susEmotionTime = 1500;
-    unsigned long angryEmotionTime = 1500;
 };
 
 #endif // EMOTIONCONTROLLER_H
