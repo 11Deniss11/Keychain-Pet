@@ -787,11 +787,45 @@ void Eyes::cycleSubEmotion()
             speed = wakeSpeed5;
             break;
 
-        case 6:
+        default:
             subEmotion = 0;
             setEmotion(NEUTRAL);
             break;
         }
+    case HEART:
+        switch (subEmotion)
+        {
+        case 0:
+            wantedPosition = heartPosition0;
+            wantedRadiuses = heartRadiuses0;
+            speed = heartSpeed0;
+            break;
+        case 1:
+            wantedPosition = heartPosition1;
+            wantedRadiuses = heartRadiuses1;
+            speed = heartSpeed1;
+            break;
+        case 2:
+            wantedPosition = heartPosition2;
+            wantedRadiuses = heartRadiuses2;
+            speed = heartSpeed2;
+            break;
+        case 3:
+            wantedPosition = heartPosition3;
+            wantedRadiuses = heartRadiuses3;
+            speed = heartSpeed3;
+            break;
+        case 4:
+            wantedPosition = heartPosition4;
+            wantedRadiuses = heartRadiuses4;
+            speed = heartSpeed4;
+            break;
+        default:
+            subEmotion = 0;
+            setEmotion(NEUTRAL);
+            break;
+        }
+        break;
     }
 }
 
@@ -960,6 +994,28 @@ void Eyes::updateCooldown()
         default:
             break;
         }
+    case HEART:
+        switch (subEmotion)
+        {
+        case 0:
+            cooldownTill = millis() + heartTime0;
+            break;
+        case 1:
+            cooldownTill = millis() + heartTime1;
+            break;
+        case 2:
+            cooldownTill = millis() + heartTime2;
+            break;
+        case 3:
+            cooldownTill = millis() + heartTime3;
+            break;
+        case 4:
+            cooldownTill = millis() + heartTime4;
+            break;
+        default:
+            break;
+        }
+        break;
     }
 }
 
@@ -993,6 +1049,10 @@ void Eyes::setEmotion(Emotion pEmotion)
     case WAKE:
         wantedPosition = wakePosition0;
         wantedRadiuses = wakeRadiuses0;
+        break;
+    case HEART:
+        wantedPosition = heartPosition0;
+        wantedRadiuses = heartRadiuses0;
         break;
     default:
         break;

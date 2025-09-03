@@ -56,6 +56,10 @@ void EmotionController::updateEmotions(bool leftPress, bool rightPress, int ligh
         {
             changeEmotion(Eyes::SUS);
         }
+        else if (esp_random() % 1000 == 1)
+        {
+            changeEmotion(Eyes::HEART);
+        }
         break;
 
     case Eyes::SAD:

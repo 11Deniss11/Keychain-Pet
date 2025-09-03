@@ -34,7 +34,8 @@ public:
         SAD,
         SUS,
         ANGRY,
-        WAKE
+        WAKE,
+        HEART
     };
     enum Game
     {
@@ -355,6 +356,46 @@ private:
                               5, 5, 5, 5};
     int wakeTime5 = 1300;
     float wakeSpeed5 = 0.4;
+
+    // Heart, 0
+    Vector2 heartPosition0[8] = {Vector2(14, 20), Vector2(27, 2), Vector2(49, 17), Vector2(36, 35),
+                                 Vector2(46, 2), Vector2(59, 20), Vector2(37, 35), Vector2(24, 17)};
+    float heartRadiuses0[8] = {7, 7, 0, 0,
+                               7, 7, 0, 0};
+    int heartTime0 = 1500;
+    float heartSpeed0 = 0.2;
+
+    // Heart, 1
+    Vector2 heartPosition1[8] = {Vector2(17, 20), Vector2(28, 5), Vector2(47, 18), Vector2(36, 33),
+                                 Vector2(45, 5), Vector2(56, 20), Vector2(37, 33), Vector2(26, 18)};
+    float heartRadiuses1[8] = {6.5, 6.5, 0, 0,
+                               6.5, 6.5, 0, 0};
+    int heartTime1 = 800;
+    float heartSpeed1 = 0.2;
+
+    // Heart, 2
+    Vector2 heartPosition2[8] = {Vector2(14, 20), Vector2(27, 2), Vector2(49, 17), Vector2(36, 35),
+                                 Vector2(46, 2), Vector2(59, 20), Vector2(37, 35), Vector2(24, 17)};
+    float heartRadiuses2[8] = {7, 7, 0, 0,
+                               7, 7, 0, 0};
+    int heartTime2 = 1500;
+    float heartSpeed2 = 0.2;
+
+    // Heart, 3
+    Vector2 heartPosition3[8] = {Vector2(17, 20), Vector2(28, 5), Vector2(47, 18), Vector2(36, 33),
+                                 Vector2(45, 5), Vector2(56, 20), Vector2(37, 33), Vector2(26, 18)};
+    float heartRadiuses3[8] = {6.5, 6.5, 0, 0,
+                               6.5, 6.5, 0, 0};
+    int heartTime3 = 800;
+    float heartSpeed3 = 0.2;
+
+    // Heart, 4
+    Vector2 heartPosition4[8] = {Vector2(14, 20), Vector2(27, 2), Vector2(49, 17), Vector2(36, 35),
+                                 Vector2(46, 2), Vector2(59, 20), Vector2(37, 35), Vector2(24, 17)};
+    float heartRadiuses4[8] = {7, 7, 0, 0,
+                               7, 7, 0, 0};
+    int heartTime4 = 800;
+    float heartSpeed4 = 0.2;
 
     Vector2 *wantedPosition = neutralPosition0;
     float *wantedRadiuses = neutralRadiuses0;
