@@ -22,6 +22,8 @@ void EmotionController::updateEmotions(bool leftPress, bool rightPress, int ligh
 {
     pollInputs(leftPress, rightPress, lightLevel);
 
+    Serial.println(String(averageLightLevel) + " " + String(lightLevelThreshold) + " " + String(sensorJustCovered));
+
     if (eyes.game != Eyes::NONE)
     {
         return;
@@ -38,7 +40,7 @@ void EmotionController::updateEmotions(bool leftPress, bool rightPress, int ligh
         break;
 
     case Eyes::NEUTRAL:
-        if (lightSensorCovered)
+        if (sensorJustCovered)
         {
             if (esp_random() % 2 == 1)
             {
@@ -63,21 +65,25 @@ void EmotionController::updateEmotions(bool leftPress, bool rightPress, int ligh
         break;
 
     case Eyes::SAD:
-        if (lightSensorCovered)
+        if (sensorJustCovered)
         {
             changeEmotion(Eyes::NEUTRAL);
         }
         break;
 
     case Eyes::SUS:
-        if (lightSensorCovered)
+        if (leftJustPressed || rightJustPressed)
+        {
+            changeEmotion(Eyes::ANGRY);
+        }
+        else if (sensorJustCovered)
         {
             changeEmotion(Eyes::HAPPY);
         }
         break;
 
     case Eyes::ANGRY:
-        if (lightSensorCovered)
+        if (sensorJustCovered)
         {
             changeEmotion(Eyes::SAD);
         }
@@ -91,7 +97,12 @@ void EmotionController::updateEmotions(bool leftPress, bool rightPress, int ligh
     updatePressHistory();
 }
 
-void EmotionController::pollInputs(bool leftPress, bool rightPress, int lightLevel)
+void EmotionController::calibrateLightLevelThreshold(unsigned int lightLevel)
+{
+    lightLevelThreshold = lightLevel * 0.25;
+}
+
+void EmotionController::pollInputs(bool leftPress, bool rightPress, unsigned int lightLevel)
 {
     averageLightLevel = (averageLightLevel * 8 + lightLevel * 2) / 10;
     lightSensorCovered = averageLightLevel < lightLevelThreshold;

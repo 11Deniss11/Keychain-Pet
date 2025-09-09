@@ -27,24 +27,28 @@ Screen screen(SSD1306_I2C_ADDRESS);
 Eyes eyes(screen);
 EmotionController emotionController(eyes);
 
-#define leftButtonPin 3
-#define rightButtonPin 2
-#define powerPin 0
+#define leftButtonPin 7
+#define rightButtonPin 21
+#define powerPin1 20
+#define powerPin2 0
 #define photoPin 1
 
 void setup()
 {
     pinMode(leftButtonPin, INPUT_PULLDOWN);
     pinMode(rightButtonPin, INPUT_PULLDOWN);
-    pinMode(powerPin, OUTPUT);
-    digitalWrite(powerPin, HIGH);
+    pinMode(powerPin1, OUTPUT);
+    digitalWrite(powerPin1, HIGH);
+    pinMode(powerPin2, OUTPUT);
+    digitalWrite(powerPin2, HIGH);
     pinMode(photoPin, INPUT);
-    // Serial.begin(115200);
+    Serial.begin(115200);
     delay(1000);
     screen.init();
     screen.clearBuffer();
     screen.drawBufferToScreen();
     eyes.setEmotion(Eyes::WAKE);
+    emotionController.calibrateLightLevelThreshold(analogRead(photoPin));
     // eyes.setGame(Eyes::DINO);
 }
 
@@ -62,7 +66,9 @@ void eyePeriodic()
         bool rightButtonPressed = digitalRead(rightButtonPin);
 
         eyes.updateEyes(leftButtonPressed, rightButtonPressed);
-        emotionController.updateEmotions(leftButtonPressed, rightButtonPressed, 300); // analogRead(photoPin)
+        emotionController.updateEmotions(leftButtonPressed, rightButtonPressed, analogRead(photoPin));
+
+        // Serial.println(String(leftButtonPressed) + " " + String(rightButtonPressed) + " " + String(analogRead(photoPin)));
     }
     lastTime = time;
 }

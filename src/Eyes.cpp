@@ -792,6 +792,7 @@ void Eyes::cycleSubEmotion()
             setEmotion(NEUTRAL);
             break;
         }
+        break;
     case HEART:
         switch (subEmotion)
         {
@@ -994,6 +995,7 @@ void Eyes::updateCooldown()
         default:
             break;
         }
+        break;
     case HEART:
         switch (subEmotion)
         {

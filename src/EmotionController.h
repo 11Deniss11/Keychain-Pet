@@ -21,8 +21,6 @@
 #include <Arduino.h>
 #include "eyes.h"
 
-#define lightLevelThreshold 200 // adjust later
-
 #define neutralEmotionTimeout 15000
 #define happyEmotionTimeout 4000
 #define sadEmotionTimeout 8000
@@ -42,12 +40,15 @@ public:
     EmotionController(Eyes &peyes) : eyes(peyes) {};
     void updateEmotions(bool leftPress, bool rightPress, int lightLevel);
     void changeEmotion(Eyes::Emotion newEmotion);
+    void calibrateLightLevelThreshold(unsigned int lightLevel);
 
 private:
+    unsigned int lightLevelThreshold = 800;
+
     bool lightSensorCovered = false;
     bool lastLightSensorCovered = false;
     bool sensorJustCovered = false;
-    int averageLightLevel = 0;
+    unsigned int averageLightLevel = 0;
 
     bool lastLeftPressed = false;
     bool leftJustPressed = false;
@@ -59,7 +60,7 @@ private:
     void updatePressHistory();
     void checkEmotionTimeout();
     // void changeEmotion(Eyes::Emotion newEmotion);
-    void pollInputs(bool leftPress, bool rightPress, int lightLevel);
+    void pollInputs(bool leftPress, bool rightPress, unsigned int lightLevel);
     Eyes &eyes;
     Press lastPress = {0, 0};
     Press secondLastPress = {0, 0};
