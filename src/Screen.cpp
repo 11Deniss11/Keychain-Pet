@@ -62,8 +62,13 @@ void Screen::init()
     sendCommand(0x14); // Enable charge pump
     sendCommand(0x20); // Memory addressing mode
     sendCommand(0x00); // Horizontal addressing mode
+#ifdef FLIPPED_SCREEN
+    sendCommand(0xA0); // Set segment re-map (flipped)
+    sendCommand(0xC0); // Set COM output scan direction (flipped)
+#else
     sendCommand(0xA1); // Set segment re-map (column address 127 is mapped to SEG0)
     sendCommand(0xC8); // Set COM output scan direction (remapped mode)
+#endif
     sendCommand(0xDA); // Set COM pins hardware configuration
     sendCommand(0x12); // Alternative COM pin configuration, disable COM left/right remap
     sendCommand(0x81); // Set contrast control
