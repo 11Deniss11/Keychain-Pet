@@ -22,7 +22,7 @@ void EmotionController::updateEmotions(bool leftPress, bool rightPress, int ligh
 {
     pollInputs(leftPress, rightPress, lightLevel);
 
-    Serial.println(String(averageLightLevel) + " " + String(lightLevelThreshold) + " " + String(sensorJustCovered));
+    // Serial.println(String(averageLightLevel) + " " + String(lightLevelThreshold) + " " + String(sensorJustCovered));
 
     if (eyes.game != Eyes::NONE)
     {
@@ -99,7 +99,7 @@ void EmotionController::updateEmotions(bool leftPress, bool rightPress, int ligh
 
 void EmotionController::calibrateLightLevelThreshold(unsigned int lightLevel)
 {
-    lightLevelThreshold = lightLevel * 0.25;
+    lightLevelThreshold = lightLevel * 0.1;
 }
 
 void EmotionController::pollInputs(bool leftPress, bool rightPress, unsigned int lightLevel)
@@ -114,6 +114,15 @@ void EmotionController::pollInputs(bool leftPress, bool rightPress, unsigned int
 
     rightJustPressed = rightPress && !lastRightPressed;
     lastRightPressed = rightPress;
+
+    if (millis() - lastPress.time > 2500 && lastPress.time != 0)
+    {
+        lastPress.type == 0 ? eyes.setGame(Eyes::PONG) : eyes.setGame(Eyes::DINO);
+    }
+    else
+    {
+        Serial.println(String(millis() - lastPress.time) + " " + String(lastPress.time));
+    }
 }
 
 void EmotionController::changeEmotion(Eyes::Emotion newEmotion)

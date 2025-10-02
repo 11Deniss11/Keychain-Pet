@@ -16,6 +16,8 @@
  */
 
 #include <Arduino.h>
+#include <WiFi.h>
+#include <esp_bt.h>
 
 #include "screen.h"
 #include "eyes.h"
@@ -35,20 +37,24 @@ EmotionController emotionController(eyes);
 
 void setup()
 {
+    WiFi.mode(WIFI_OFF);
+    btStop();
+    delay(500);
     pinMode(leftButtonPin, INPUT_PULLDOWN);
     pinMode(rightButtonPin, INPUT_PULLDOWN);
     pinMode(powerPin1, OUTPUT);
-    digitalWrite(powerPin1, HIGH);
     pinMode(powerPin2, OUTPUT);
-    digitalWrite(powerPin2, HIGH);
     pinMode(photoPin, INPUT);
     Serial.begin(115200);
-    delay(1000);
+    delay(500);
+    digitalWrite(powerPin1, HIGH);
+    digitalWrite(powerPin2, HIGH);
+    delay(500);
     screen.init();
     screen.clearBuffer();
     screen.drawBufferToScreen();
     eyes.setEmotion(Eyes::WAKE);
-    emotionController.calibrateLightLevelThreshold(analogRead(photoPin));
+    emotionController.calibrateLightLevelThreshold(analogRead(photoPin)); // analogRead(photoPin)
     // eyes.setGame(Eyes::DINO);
 }
 
@@ -66,7 +72,7 @@ void eyePeriodic()
         bool rightButtonPressed = digitalRead(rightButtonPin);
 
         eyes.updateEyes(leftButtonPressed, rightButtonPressed);
-        emotionController.updateEmotions(leftButtonPressed, rightButtonPressed, analogRead(photoPin));
+        emotionController.updateEmotions(leftButtonPressed, rightButtonPressed, analogRead(photoPin)); // analogRead(photoPin)
 
         // Serial.println(String(leftButtonPressed) + " " + String(rightButtonPressed) + " " + String(analogRead(photoPin)));
     }

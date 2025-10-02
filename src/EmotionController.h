@@ -62,8 +62,8 @@ private:
     // void changeEmotion(Eyes::Emotion newEmotion);
     void pollInputs(bool leftPress, bool rightPress, unsigned int lightLevel);
     Eyes &eyes;
-    Press lastPress = {0, 0};
-    Press secondLastPress = {0, 0};
+    Press lastPress = {0, 2};
+    Press secondLastPress = {0, 2};
     unsigned long currentEmotionStartTime = 0;
 };
 
